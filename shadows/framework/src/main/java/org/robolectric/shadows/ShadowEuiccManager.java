@@ -12,9 +12,9 @@ import org.robolectric.annotation.Implements;
 @Implements(value = EuiccManager.class, minSdk = P)
 public class ShadowEuiccManager {
 
-  private final Map<Integer, EuiccManager> cardIdsToEuiccManagers = new HashMap<>();
-  private boolean enabled;
-  private String eid;
+  private static final Map<Integer, EuiccManager> cardIdsToEuiccManagers = new HashMap<>();
+  private static boolean enabled;
+  private static String eid;
 
   @Implementation(minSdk = Q)
   protected EuiccManager createForCardId(int cardId) {
@@ -22,8 +22,10 @@ public class ShadowEuiccManager {
   }
 
   /** Sets the value returned by {@link EuiccManager#createForCardId(int)}. */
-  public void setEuiccManagerForCardId(int cardId, EuiccManager euiccManager) {
-    cardIdsToEuiccManagers.put(cardId, euiccManager);
+  public static void setEuiccManagerForCardId(int cardId, EuiccManager euiccManager) {
+    synchronized (cardIdsToEuiccManagers) {
+      cardIdsToEuiccManagers.put(cardId, euiccManager);
+    }
   }
 
   /** Returns {@code false}, or the value specified by calling {@link #setIsEnabled}. */
